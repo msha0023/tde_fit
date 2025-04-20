@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+src/tde_fit/__init__.py
+src/tde_fit.egg-info/PKG-INFO
+src/tde_fit.egg-info/SOURCES.txt
+src/tde_fit.egg-info/dependency_links.txt
+src/tde_fit.egg-info/requires.txt
+src/tde_fit.egg-info/top_level.txt
+src/tde_fit/core/lightcurve.py
+src/tde_fit/utils/constants.py
+src/tde_fit/utils/conversions.py
+src/tde_fit/utils/survey_bands.py

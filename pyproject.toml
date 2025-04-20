@@ -1,0 +1,9 @@
+[project]
+name = "tde_fit"
+version = "0.1.0"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "os"
+]
