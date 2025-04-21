@@ -16,6 +16,7 @@ weinconst   = 5.88e10         # Wien's displacement constant in Hz·K
 c           = 2.99792458e10   # Speed of light in cm / s
 cm_to_nm    = 1e7             # nm / cm
 au          = 1.4959787e13    # cm / AU
+cm_to_au    = 1.0 / au        # AU / cm
 
 # Time
 sec_to_days = 3600.0 * 24.0   # s / day
