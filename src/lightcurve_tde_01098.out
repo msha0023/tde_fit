@@ -1,6 +1,0 @@
-# SPLASH: A visualisation tool for SPH data (c)2004-2024 Daniel Price and contributors
-# lightcurve_tde_01098.out produced using "splash calc lightcurve" on dump files ./tde_01098->./tde_01098
-# use splash -ev lightcurve_tde_01098.out to plot the contents of this file 
-#
-# [01   time days]   [02  Luminosity]   [03     R_{eff}]   [04     T_{eff}]   [05     L_{bol}]   [06      R_{bb}]   [07         T_c]   [08   bad pix %]
-  3.5915364141E+02   2.0302850297E+41   1.5777276373E+15   3.2709582867E+03   1.3895037787E+41   2.8539187193E+14   6.9951318085E+03   8.6585365854E-02

@@ -2,6 +2,7 @@
 Contains class for creating a light curve object
 The class is used to load the light curve data from a file, fit the data to a blackbody spectrum, and plot the results.
 """
+
 import os
 import numpy as np
 import scipy.integrate as integrate
@@ -111,7 +112,8 @@ class LightCurve(Lightcurveplot):
         Tc, bb_scale        = self.get_color_temperature()
 
         # return zeros if no emission in band
-        if (np.all(myspec < 1.e-30) or np.size(myspec) <= 2):
+        # ask fitz about this later
+        if (np.all(myspec)  < 1.e-30 or np.size(myspec) <= 2):
             return 0., 0., Bnu(self.nu_grid, 0., 0.)
 
         # fit single temperature blackbody to data
@@ -123,7 +125,6 @@ class LightCurve(Lightcurveplot):
             popt, pcov = optimize.curve_fit(Bnulog, mynu, fit_spec, p0=(self.Tguess, bb_scale))
            
         Tfit, bb_scale = popt
-        print(np.sqrt(np.diag(pcov)))
        
         bbspec = Bnu(self.nu_grid, Tfit, bb_scale)
         return Tfit, bb_scale, bbspec
@@ -135,7 +136,7 @@ class LightCurve(Lightcurveplot):
         if m:
             itime = m.group(1)
             file='lightcurve_'+self.name[:-5]+'.out'
-
+            file = os.path.join(self.folder, file)
             if not os.path.exists(file):
                 raise FileNotFoundError(f"Associated lightcurve file {file} not found.")
     
@@ -145,7 +146,7 @@ class LightCurve(Lightcurveplot):
                 print("failed to load "+file)
 
             # get information from lightcurve file
-            time = row[0] / sec_to_days
+            time = row[0]
             Ltot = row[1]
             Reff = row[2]
             Teff = row[3]
@@ -155,20 +156,27 @@ class LightCurve(Lightcurveplot):
             
         return time, Ltot, Reff, Teff
     
-    def write_data(self):
+    def write_single_data(self):    
         files = ['lum.dat', 'tde-lightcurve.out']
         self._delete_existing_files(files)
         
-        time, Ltot, Reff, Teff = self.get_time_from_filename()
-        Tc, Tbb, Tx, l_bb, l_bb2, l_x, rbb, rbb2, rbbtot, rx, lbb_to_lx = self._compute_fits(Ltot)
+        time, Ltot, Reff, Teff, Tc, Tbb, Tx, l_bb, l_bb2, l_x, rbb, rbb2, rbbtot, rx, lbb_to_lx = self.write_all_data()
 
         self._write_lum_dat(files[0], time, l_bb, rbb, Tbb, Ltot, l_x, rx, Tx)
         self._write_tde_lightcurve(files[1], time, Ltot, Teff, Reff, l_bb, Tc, rbb,
                                 l_bb2, Tbb, rbb2, rbbtot, l_x, Tx, lbb_to_lx)
+        
+    def write_all_data(self):
+        time, Ltot, Reff, Teff = self.get_time_from_filename()
+        Tc, Tbb, Tx, l_bb, l_bb2, l_x, rbb, rbb2, rbbtot, rx, lbb_to_lx = self._compute_fits(Ltot)
+
+        return time, Ltot, Reff, Teff, Tc, Tbb, Tx, l_bb, l_bb2, l_x, rbb, rbb2, rbbtot, rx, lbb_to_lx
 
 
     def _delete_existing_files(self, filenames):
+
         for file in filenames:
+            file = os.path.join(self.folder, file)
             if os.path.isfile(file):
                 print(f"File {file} already exists. Deleting.")
                 os.remove(file)
@@ -203,6 +211,9 @@ class LightCurve(Lightcurveplot):
 
 
     def _write_lum_dat(self, filename, time, l_bb, rbb, Tbb, Ltot, l_x, rx, Tx):
+
+        filename = os.path.join(self.folder, filename)
+        print(filename, 'filename inside _write_lum_dat')
         with open(filename, 'w') as f:
             f.write('# time   lbb   rbb   Tbb   ltot   lx   rx   Tx\n')
             f.write(f'{time:.5e} {l_bb:.5e} {rbb:.5e} {Tbb:.5e} {Ltot:.5e} {l_x:.5e} {rx:.5e} {Tx:.5e}\n')
@@ -210,8 +221,49 @@ class LightCurve(Lightcurveplot):
 
     def _write_tde_lightcurve(self, filename, time, Ltot, Teff, Reff, l_bb, Tc, rbb,
                              l_bb2, Tbb, rbb2, rbbtot, l_x, Tx, lbb_to_lx):
+        
+        filename = os.path.join(self.folder, filename)
         with open(filename, 'w') as f:
             f.write('# Time [days],Ltot [erg/s],T_{eff} [K],R_{eff} [cm],l_bb [erg/s],Tc [K],R_{bbfit} [cm],'
                     'l_{bol} [erg/s],T_{bb} [K],R_{bb} [cm],R_{bbtot} [cm],L_x [erg/s],Tx [keV],L_{bb}/L_x\n')
             f.write(f'{time:.5fe} {Ltot:.5e} {Teff:.5e} {Reff:.5e} {l_bb:.5e} {Tc:.5e} {rbb:.5e} '
+                    f'{l_bb2:.5e} {Tbb:.5e} {rbb2:.5e} {rbbtot:.5e} {l_x:.5e} {Tx * kb / keV_to_erg:.5e} {lbb_to_lx:.5e}\n')
+
+    
+    @staticmethod
+    def write_multiple_data(folder, times, Ltots, Reffs, Teffs, Tcs, Tbbs, Txs, l_bbs, l_bb2s, l_xs, rbbs, rbb2s, rbbtots, rxs, lbb_to_lxs):
+        files = ['lum.dat', 'tde-lightcurve.out']
+        files = [os.path.join(folder, file) for file in files]
+        
+        for index, file in enumerate(files):
+
+            # Always remove file if it exists
+            if os.path.isfile(file):
+                print(f"File {file} already exists. Deleting.")
+                os.remove(file)
+
+            # Now write the appropriate header regardless
+            with open(file, 'w') as f:
+                if index == 0:
+                    f.write('# time   lbb   rbb   Tbb   ltot   lx   rx   Tx\n')
+                else:
+                    f.write('# Time [days],Ltot [erg/s],T_{eff} [K],R_{eff} [cm],l_bb [erg/s],Tc [K],R_{bbfit} [cm],'
+                            'l_{bol} [erg/s],T_{bb} [K],R_{bb} [cm],R_{bbtot} [cm],L_x [erg/s],Tx [keV],L_{bb}/L_x\n')
+
+
+        for i in range(len(times)):
+            LightCurve._write_lum_dat_static(files[0], times[i], l_bbs[i], rbbs[i], Tbbs[i], Ltots[i], l_xs[i], rxs[i], Txs[i])
+            LightCurve._write_tde_lightcurve_static(files[1], times[i], Ltots[i], Teffs[i], Reffs[i], l_bbs[i], Tcs[i], rbbs[i],
+                                                    l_bb2s[i], Tbbs[i], rbb2s[i], rbbtots[i], l_xs[i], Txs[i], lbb_to_lxs[i])
+
+    @staticmethod
+    def _write_lum_dat_static(filename, time, l_bb, rbb, Tbb, Ltot, l_x, rx, Tx):
+        with open(filename, 'a') as f:
+            f.write(f'{time:.5e} {l_bb:.5e} {rbb:.5e} {Tbb:.5e} {Ltot:.5e} {l_x:.5e} {rx:.5e} {Tx:.5e}\n')
+
+    @staticmethod
+    def _write_tde_lightcurve_static(filename, time, Ltot, Teff, Reff, l_bb, Tc, rbb,
+                                     l_bb2, Tbb, rbb2, rbbtot, l_x, Tx, lbb_to_lx):
+        with open(filename, 'a') as f:
+            f.write(f'{time:.5e} {Ltot:.5e} {Teff:.5e} {Reff:.5e} {l_bb:.5e} {Tc:.5e} {rbb:.5e} '
                     f'{l_bb2:.5e} {Tbb:.5e} {rbb2:.5e} {rbbtot:.5e} {l_x:.5e} {Tx * kb / keV_to_erg:.5e} {lbb_to_lx:.5e}\n')
