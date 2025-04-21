@@ -46,7 +46,6 @@ m.read_all_files()                # Processes all files, saves plots to 'data/pl
 from tde_fit import PlotLum
 
 m = PlotLum('/path/to/lightcurve_folder')  
-# Provide a parent folder with subfolders, each containing a tde-lightcurve.out
 m.plot_figure()
 
 3. Plot individual .spec files
