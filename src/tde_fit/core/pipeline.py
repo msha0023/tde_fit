@@ -36,6 +36,7 @@ class PipeLine:
         os.makedirs(self.plot_folder, exist_ok=True)
 
         for filename in os.listdir(self.foldername):
+            print(filename, "filename")
             if filename.endswith(".spec"):
                 filepath = os.path.join(self.foldername, filename)
                 print(f"Processing file: {filepath}")
@@ -51,6 +52,7 @@ class PipeLine:
 
                      # Save the plots
                     fig.savefig(os.path.join(self.plot_folder, "lightcurve_"+str(filename)+".png"))
+                    print(f"Saved plot for {filename} to {self.plot_folder}")
                     
 
                 except Exception as e:

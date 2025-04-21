@@ -1,12 +1,17 @@
-Metadata-Version: 2.4
+Metadata-Version: 2.1
 Name: tde_fit
 Version: 0.1.0
-Summary: UNKNOWN
+Summary: Tools for analyzing and fitting lightcurves from tidal disruption event simulations
+Author: Fitz Hu, Daniel Price
+Author-email: Megha Sharma <megha.sharma@monash.edu>
 License: UNKNOWN
+Project-URL: Repository, https://github.com/msha0023/tde_fit
 Platform: UNKNOWN
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: numpy,matplotlib,scipy
-Requires-Python: >=3.6
-Dynamic: license-file
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: scipy
 
 UNKNOWN

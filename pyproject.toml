@@ -1,9 +1,27 @@
 [project]
 name = "tde_fit"
 version = "0.1.0"
+description = "Tools for analyzing and fitting lightcurves from tidal disruption event simulations"
+authors = [
+    { name = "Fitz Hu" },
+    { name = "Daniel Price" },
+    { name = "Megha Sharma", email = "megha.sharma@monash.edu" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
 dependencies = [
     "numpy",
-    "scipy",
     "matplotlib",
-    "os"
+    "scipy"
 ]
+
+[project.urls]
+Repository = "https://github.com/msha0023/tde_fit"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["tde_fit"]
